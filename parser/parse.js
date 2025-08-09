@@ -1,5 +1,5 @@
-const {  } = require('/dc/dc-cmd'); // 이 파일을 일단은 종속시키고 작업합니다...
-const { DataUtil } = require('/core/util');
+const {  } = require('../dc/dc-cmd'); // 이 파일을 일단은 종속시키고 작업합니다...
+const { DataUtil } = require('../core/util');
 
 // commands
 //
@@ -16,4 +16,4 @@ const parse = (message) => {
     message.content
 }
 
-export { parse };
+module.export = { parse };

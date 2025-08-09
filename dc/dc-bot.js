@@ -1,6 +1,6 @@
-const { Client, GatewayIntentBits } = require('discord');
+const { Client, GatewayIntentBits } = require('discord.js');
 
-const { parse } = require('/parser/parse');
+const { parse } = require('../parser/parse');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
@@ -47,7 +47,7 @@ const start = async () => {
         await client.login(process.env.DISCORD_TOKEN);
         console.log('✅ 봇이 성공적으로 시작되었습니다.');
     } catch (error) {
-        throw '❌ 봇 시작 중 오류 발생:';
+        throw '❌ 봇 시작 중 오류 발생, 당장은 아마 토큰이 없어서일거에요.';
     }
 }
 
