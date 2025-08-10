@@ -1,19 +1,62 @@
-const {  } = require('../dc/dc-cmd'); // 이 파일을 일단은 종속시키고 작업합니다...
-const { DataUtil } = require('../core/util');
+const { commands, methods } = require('../dc/dc-cmd'); // 이 파일을 일단은 종속시키고 작업합니다...
+const { settings } = require('../conf/settings.js');
+const { DataUtil } = require('../cmmn/util');
 
-// commands
-//
-// Music play
-// ex) // "!mp or !mplay or !play 제니 만트라" -> []
-// LLM query
-// ex) // "!q or !query LLM에게 질문하세요!" -> []
-// research query
-// ex) // "!rq or !rquery 여기 내용과 관련된 자료들을 찾습니다." -> []
+const XUTIL = new DataUtil({ name : "XUTIL", debug: true });
 
-const parse = (message) => {
-    console.log("message :", message);
-
-    message.content
+const findChannel = (message, name) => {
+    return message.guild.channels.cache.find(channel => channel.name === name);
 }
 
-module.export = { parse };
+// 정리 나중에 구현먼저..
+const execute = (client, contents, args) => {
+    const tokens = XUTIL.extend([], XUTIL.tokenize(contents), args);
+    const cmd = tokens.shift();
+    const conf = findConf(cmd.replace(settings.prefix, ""));
+
+    let fn = conf.execute;
+
+    if (fn instanceof Function) {
+        fn = fn(tokens);
+    } else if (typeof(fn) == "string") {
+        fn = execute(client, fn, tokens);
+    }
+}
+
+const invoke = (client, conf) => {
+
+}
+
+const findConf = (cmd) => {
+    const commands = getAllCommands();
+
+    let command = null;
+    for (const key in commands) {
+        if (XUTIL.isIn(commands[key].cmd, cmd)) {
+            command = commands[key];
+            break;
+        }
+    }
+
+    return command;
+}
+
+let cmdList = [];
+let commandHash = "";
+let czCommands = {};
+
+const getAllCommands = () => {
+    const hash = XUTIL.hash(JSON.stringify(czCommands));
+
+    if (hash == commandHash) {
+        return cmdList;
+    }
+
+    commandHash = hash;
+    cmdList = XUTIL.extend({}, commands, czCommands);
+    // console.log("cmdList2 : ", cmdList);
+
+    return cmdList;
+}
+
+module.exports = { execute };

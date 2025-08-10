@@ -1,34 +1,22 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 
-const { parse } = require('../parser/parse');
+const { execute } = require('../parser/parse.js');
+const { settings } = require('../conf/settings.js');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-
 client.once('ready', () => {
     console.log(`✅ 로그인 성공: ${client.user.tag}`);
 });
-
 // 메세지 기반 반응
 client.on('messageCreate', message => {
     if (message.author.bot) return;
 
-    parse(message);
+    // 접두어가 없으면 무시
+    if (!message.content.startsWith(settings.prefix)) {
+        return;
+    }
 
-    // if (message.content === '!knock') {
-    //     message.channel.send("누가 거기 있나요? 👀\n(봇이 잘 동작 중 이에요!)");
-    // } else if (message.content === '!ping') {
-    //     message.reply('🏓 Pong!');
-    // } else if (message.content === '!welcome') {
-    //     message.channel.send("커뜨개차 채널에 오신 것을 환영합니다!\n아래 규칙을 잘 읽어주세요.\n사실 규칙은 없습니다!");
-    //
-    // } else if (message.content === '!add') {
-    //     console.log("message : ", message);
-    //     //TODO, 신규 customize command를 추가 합니다.
-    // } else if (message.content === '!remove') {
-    //     console.log("message : ", message);
-    //     //TODO, customize command를 제거 합니다.
-    // } else if (message.content === '!help') {
-    // }
+    execute(message, message.content);
 });
 
 // 신규 참여자 이벤트
