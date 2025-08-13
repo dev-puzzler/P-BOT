@@ -9,52 +9,69 @@ const findChannel = (message, name) => {
 }
 
 // 정리 나중에 구현먼저..
-const execute = (client, contents, args) => {
-    const tokens = XUTIL.extend([], XUTIL.tokenize(contents), args);
-    const cmd = tokens.shift();
-    const conf = findConf(cmd.replace(settings.prefix, ""));
+const execute = (client, contents) => {
+    const cmdList = getCommandList();
 
-    let fn = conf.execute;
+    const fn = findFn(cmdList, contents);
+    fn.invoke();
+}
 
-    if (fn instanceof Function) {
-        fn = fn(tokens);
-    } else if (typeof(fn) == "string") {
-        fn = execute(client, fn, tokens);
+class Invoker {
+    constructor(func, args) {
+        this.func = func;
+        this.args = args;
     }
-}
 
-const invoke = (client, conf) => {
-
-}
-
-const findConf = (cmd) => {
-    const commands = getAllCommands();
-
-    let command = null;
-    for (const key in commands) {
-        if (XUTIL.isIn(commands[key].cmd, cmd)) {
-            command = commands[key];
-            break;
+    invoke() {
+        if (this.func instanceof Function) {
+            return this.func(...this.args);
+        } else {
+            throw new Error("Function is not defined or not a function.");
         }
     }
+}
 
-    return command;
+const findFn = (cmdList, command, args) => {
+    if (!command) {
+        throw "명령어가 정의되지 않았습니다.";
+    }
+
+    const tokens = XUTIL.extend([], XUTIL.tokenize(command), args);
+    let cmd = tokens.shift();
+
+    if (!cmd || !cmd.startsWith(settings.prefix)) {
+        throw "정상적인 명령어 형태가 아닙니다. command: " + command;
+    } else {
+        cmd = cmd.replace(settings.prefix, "").trim();
+    }
+
+    if (typeof(cmd) == "string") {
+        for (let i=0; i<cmdList.length; i++) {
+            if (XUTIL.isIn(cmdList[i].cmd, cmd)) {
+                return findFn(cmdList, cmdList[i].execute, XUTIL.extend(tokens, args));
+            }
+        }
+    } else if (cmd instanceof Function) {
+        return new Invoker(cmd, args);
+    } else {
+        throw "요구되는 명령어를 찾지 못했습니다. command: " + command;
+    }
 }
 
 let cmdList = [];
 let commandHash = "";
 let czCommands = {};
 
-const getAllCommands = () => {
+const getCommandList = () => {
     const hash = XUTIL.hash(JSON.stringify(czCommands));
 
-    if (hash == commandHash) {
+    if (hash === commandHash) {
+        // 일단 redis 캐시 대신..
         return cmdList;
     }
 
     commandHash = hash;
     cmdList = XUTIL.extend({}, commands, czCommands);
-    // console.log("cmdList2 : ", cmdList);
 
     return cmdList;
 }

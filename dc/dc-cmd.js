@@ -1,22 +1,3 @@
-// command의 구성
-/**
- * {
- *     cmd : "ping",
- *     channel : "react",
- *     // react: default    // 메세지를 보낸 채널을 대상으로 합니다. message.channel.send("채널 메세지");
- *     // reply             // 메세지를 대상으로 합니다. ex) message.reply("답글");
- *     // 그 외              // channel란에 적힌 명칭을 다음과 같이 찾아옵니다.
- *                          // message.guild.channels.cache.find(channel => channel.name === 'name')
- *
- *     execute : "ping",     // 실행될 메소드를 설정합니다, 생략되면 command 이름과 동일하게 설정됩니다. (cmd 속성과 무관)
- *     query : String,       // 명령어에 대한 쿼리 데이터 타입을 지정합니다.
- *     response : String,    // 명령어에 대한 응답 데이터 타입을 지정합니다.
- *     description :         // 명령어에 대한 설명을 작성합니다.
- *     example : []          // 명령어 사용 예시를 작성합니다.
- * }
- */
-
-
 // Invoke될 명령어
 methods = {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +65,23 @@ methods = {
 
 }
 
+// command의 구성
+/**
+ * {
+ *     cmd : "ping",
+ *     channel : "react",
+ *     // react: default    // 메세지를 보낸 채널을 대상으로 합니다. message.channel.send("채널 메세지");
+ *     // reply             // 메세지를 대상으로 합니다. ex) message.reply("답글");
+ *     // 그 외              // channel란에 적힌 명칭을 다음과 같이 찾아옵니다.
+ *                          // message.guild.channels.cache.find(channel => channel.name === 'name')
+ *
+ *     execute : "ping",     // 실행될 메소드를 설정합니다, 생략되면 command 이름과 동일하게 설정됩니다. (cmd 속성과 무관)
+ *     query : String,       // 명령어에 대한 쿼리 데이터 타입을 지정합니다.
+ *     response : String,    // 명령어에 대한 응답 데이터 타입을 지정합니다.
+ *     description :         // 명령어에 대한 설명을 작성합니다.
+ *     example : []          // 명령어 사용 예시를 작성합니다.
+ * }
+ */
 commands = [
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 기초(core) 명령어(기초에 작성되는 execute는 반드시 Function Type 이어야 합니다.)
