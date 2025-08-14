@@ -10,7 +10,7 @@ methods = {
     chat : (args) => {
         let msg = "";
 
-        if (args.length === 0) {
+        if (!args || args.length === 0) {
             msg = "기록할 내용이 비어 있습니다!";
         } else {
             msg = args.join("\n");
@@ -25,7 +25,7 @@ methods = {
     repl : (args) => {
         let msg = "";
 
-        if (args.length === 0) {
+        if (!args || args.length === 0) {
             msg = "기록할 내용이 비어 있습니다!";
         } else {
             msg = args.join("\n");

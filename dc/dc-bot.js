@@ -1,6 +1,6 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, WebhookClient } = require('discord.js');
 
-const { execute } = require('../parser/parse.js');
+const { execute } = require('../exec/executer.js');
 const { settings } = require('../conf/settings.js');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
@@ -34,7 +34,16 @@ const start = async () => {
     try {
         await client.login(process.env.DISCORD_TOKEN);
         console.log('✅ 봇이 성공적으로 시작되었습니다.');
+
+        // webhook ID와 토큰을 알아야 함
+        // const webhook = new WebhookClient({ id: 'WEBHOOK_ID', token: 'WEBHOOK_TOKEN' });
+        //
+        // webhook.send({
+        //     content: '!ping',
+        //     username: '홍길동',
+        // });
     } catch (error) {
+        console.error(error);
         throw '❌ 봇 시작 중 오류 발생, 당장은 아마 토큰이 없어서일거에요.';
     }
 }
