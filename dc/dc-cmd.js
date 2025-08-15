@@ -1,3 +1,5 @@
+const { OptParser } = require('../parser/parse');
+
 // Invoke될 명령어
 methods = {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -7,31 +9,38 @@ methods = {
      * Command Name : chat
      * Response : String
      */
-    chat : (args) => {
-        let msg = "";
-
-        if (!args || args.length === 0) {
-            msg = "기록할 내용이 비어 있습니다!";
-        } else {
-            msg = args.join("\n");
+    chat : (client, message, channel, args) => {
+        if (!message && !args) {
+            message = "기록할 내용이 비어 있습니다!";
+        } else if (!message) {
+            message = args.join("\n");
         }
 
-        return msg;
+        console.log("client  : ", client);
+
+        if (channel === "react") {
+            client.channel.send(message);
+        } else if (channel === "reply") {
+            client.reply(message);
+        } else if (typeof(channel) === "string") {
+            const _channel = client.guild.channels.cache.find(channel => channel.name === channel);
+
+            if (_channel) {
+                throw "채널을 찾지 못했습니다.";
+            }
+
+            _channel.send(message);
+        } else {
+            throw "해석할 수 없는 채널 정보입니다.";
+        }
     },
     /**
-     * Command Name : chat
-     * Response : String
+     * Command Name : clear
+     * Response : Void
      */
-    repl : (args) => {
-        let msg = "";
+    clear : (client, args) => {
+        const options = {};
 
-        if (!args || args.length === 0) {
-            msg = "기록할 내용이 비어 있습니다!";
-        } else {
-            msg = args.join("\n");
-        }
-
-        return msg;
     },
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 커스터마이즈 명령어 설정
@@ -90,6 +99,10 @@ commands = [
         cmd : "chat",
         channel : "react",
         execute : methods.chat,
+        parser : new OptParser({
+            "message" : ["-m", "--message"],
+            "channel" : ["-c", "--channel"],
+        }),
         response : String,
         description : "봇에게 메세지를 남길 것을 요청합니다.",
         example : [

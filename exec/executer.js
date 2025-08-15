@@ -1,5 +1,7 @@
 const { commands, methods } = require('../dc/dc-cmd'); // 이 파일을 일단은 종속시키고 작업합니다...
-const { settings } = require('../conf/settings.js');
+const { OptParser } = require('../parser/parse'); // 이 파일을 일단은 종속시키고 작업합니다...
+const { DI } = require('./di'); // 이 파일을 일단은 종속시키고 작업합니다...
+const { settings } = require('../conf/settings');
 const { DataUtil } = require('../cmmn/util');
 
 const XUTIL = new DataUtil({ name : "XUTIL", debug: true });
@@ -10,23 +12,30 @@ const execute = (message) => {
     if (valid(message)) {
         // !who가 `!chat "i am admin"`을 command로 갖고 있을 때
         // message.content // `!who`
-        const comp = findOpt(message.content);
-        console.log("comp : ", comp);
-
-        const result = comp.opt.execute(comp.args);
-        console.log("result : ", result);
-
-        if (comp.opt.response instanceof String) {
-            if (comp.opt.channel === "react") {
-                message.channel.send(result);
-            } else if (comp.opt.channel === "repl") {
-                message.reply(result);
-            } else if (typeof(comp.opt.channel) === "string") {
-                message.guild.channels.cache.find(channel => channel.name === comp.opt.channel).send(result);
-            }
-        }
+        Invoker.invoke(findOpt(message.content, ["client",  message]));
     }
 }
+
+class Invoker {
+    constructor() {}
+
+    static invoke(request) {
+        console.log("request : ", request);
+
+        const opts = request.opt, args = request.args;
+
+        if (!opts || !opts.execute || !(opts.execute instanceof Function)) {
+            throw "실행가능한 명령이 아닙니다";
+        }
+
+        if (opts.channel) {
+        }
+
+        const parser = opts.parser || OptParser.getDefaultOpt;
+        DI.call(opts.execute, parser.parse(args));
+    }
+}
+
 
 //todo, 최적화 필요
 const getOpts = () => {
@@ -63,11 +72,11 @@ const findOpt = (command, args) => {
 
         if (opt && opt.execute && XUTIL.isIn(opt.cmd, cmd)) {
             // (tokens, args) 순서로 솎아야 요청자의 인자가 후순위 병합
-            return findOpt(opt.execute, XUTIL.extend([], tokens, args));
+            return findOpt(opt.execute, [...tokens, ...args]);
         } else if (opt.execute instanceof Function) {
             return {
                 opt : opt,
-                args : XUTIL.extend([], tokens, args)
+                args : [...tokens, ...args]
             };
         }
     }
